@@ -29,7 +29,7 @@
 <div class="bg-white rounded-xl border border-gray-100 p-6 mb-6">
     <div class="flex items-center justify-between mb-4">
         <h2 class="font-semibold text-gray-800">Traffic Pengunjung</h2>
-        <div class="flex items-center gap-3">
+        <div class="flex flex-col md:flex-row md:items-center gap-3">
             {{-- Date range --}}
             <div class="flex items-center gap-2">
                 <input type="date" id="trafficFrom"
@@ -46,7 +46,7 @@
             </div>
             <div class="w-px h-5 bg-gray-200"></div>
             {{-- Period buttons --}}
-            <div class="flex gap-2">
+            <div class="flex flex-wrap gap-2">
                 <button onclick="loadTraffic('daily')" id="traffic-daily"
                     class="traffic-btn px-3 py-1.5 text-xs rounded-lg border border-blue-700 bg-blue-700 text-white transition">
                     Harian
@@ -63,7 +63,7 @@
         </div>
     </div>
     <p class="text-xs text-gray-400 mb-3" id="trafficDateLabel"></p>
-    <div class="relative h-64">
+    <div class="relative h-48 md:h-64">
         <canvas id="trafficChart"></canvas>
     </div>
     <div class="flex gap-6 mt-4">
@@ -117,7 +117,7 @@
     </div>
 </div>
 
-    <div class="relative h-56">
+    <div class="relative h-40 md:h-56">
         <canvas id="revenueChart"></canvas>
     </div>
 </div>
@@ -126,7 +126,7 @@
 <div class="bg-white rounded-xl border border-gray-100 p-6">
     <div class="flex items-center justify-between mb-4">
         <h2 class="font-semibold text-gray-800">Statistik Produk</h2>
-        <div class="flex gap-1 bg-gray-100 rounded-lg p-1">
+        <div class="flex gap-1 bg-gray-100 rounded-lg p-1 overflow-x-auto">
             <button onclick="showTab('views')" id="tab-views"
                 class="product-tab px-3 py-1 text-xs rounded-md font-medium transition bg-white text-gray-800 shadow-sm">
                 Terbanyak Dilihat

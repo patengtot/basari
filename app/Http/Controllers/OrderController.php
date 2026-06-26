@@ -131,6 +131,11 @@ class OrderController extends Controller
                               ->where('size', $item->size)
                               ->decrement('stock', $item->quantity);
             }
+            if ($item->color) {
+                $item->product->colors()
+                              ->where('color', $item->color)
+                              ->decrement('stock', $item->quantity);
+            }
         }
 
         $cart->items()->delete();

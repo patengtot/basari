@@ -12,7 +12,7 @@
 <div class="flex min-h-screen">
 
     {{-- Sidebar --}}
-    <aside class="w-64 bg-white border-r border-gray-100 flex flex-col fixed h-full z-40">
+    <aside id="sidebar" class="w-64 bg-white border-r border-gray-100 flex flex-col fixed h-full z-40 transition-transform duration-200">
         
         {{-- Logo --}}
         <div class="px-6 py-5 border-b border-gray-100">
@@ -141,12 +141,19 @@
     </aside>
 
     {{-- Main Content --}}
-    <div class="flex-1 ml-64">
+    <div id="mainContent" class="flex-1 ml-64 transition-all duration-200">
 
         
         {{-- Topbar --}}
         <header class="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
-            <h1 class="text-lg font-semibold text-gray-800">@yield('header', 'Dashboard')</h1>
+            <div class="flex items-center">
+                <button id="toggleSidebar" class="mr-3 text-gray-600 hover:text-blue-900 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+                <h1 class="text-lg font-semibold text-gray-800">@yield('header', 'Dashboard')</h1>
+            </div>
 
             {{-- Notifikasi Admin --}}
             <div class="relative group">
@@ -240,6 +247,28 @@
     </div>
 
 </div>
+</div>
+<script>
+    const toggleBtn = document.getElementById('toggleSidebar');
+    const sidebar = document.getElementById('sidebar');
+    const main = document.getElementById('mainContent');
+
+    let isHidden = false;
+
+    toggleBtn.addEventListener('click', function () {
+        isHidden = !isHidden;
+
+        if (isHidden) {
+            sidebar.classList.add('-translate-x-full');
+            main.classList.remove('ml-64');
+            main.classList.add('ml-0');
+        } else {
+            sidebar.classList.remove('-translate-x-full');
+            main.classList.add('ml-64');
+            main.classList.remove('ml-0');
+        }
+    });
+</script>
 @stack('scripts')
 </body>
 </html>
