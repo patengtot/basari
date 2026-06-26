@@ -133,7 +133,7 @@ class OrderController extends Controller
             }
             if ($item->color) {
                 $item->product->colors()
-                              ->where('color', $item->color)
+                              ->where('name', $item->color)
                               ->decrement('stock', $item->quantity);
             }
         }
