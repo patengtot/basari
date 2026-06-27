@@ -195,4 +195,31 @@ return [
     'footer_our_story'          => 'Our Story',
     'footer_contact'            => 'Contact',
     'footer_contact_us'         => 'Contact Us',
+
+    // Tracking Status
+'tracking_status_confirmed'    => 'Order Confirmed',
+'tracking_status_allocated'    => 'Courier Allocated',
+'tracking_status_picking_up'   => 'Courier Heading to Sender',
+'tracking_status_picked'       => 'Package Picked Up',
+'tracking_status_dropping_off' => 'Package Heading to Destination',
+'tracking_status_in_transit'   => 'Package In Transit',
+'tracking_status_on_hold'      => 'Package On Hold',
+'tracking_status_delivered'    => 'Package Delivered',
+'tracking_status_cancelled'    => 'Delivery Cancelled',
+'tracking_status_rejected'     => 'Delivery Rejected',
+'tracking_status_return'       => 'Package Returned',
+
+// Tracking Notes
+'tracking_note_confirmed'      => 'Your order has been confirmed and is waiting for pickup.',
+'tracking_note_allocated'      => 'A courier has been allocated to pick up your package.',
+'tracking_note_picking_up'     => 'The courier is on the way to pick up your package.',
+'tracking_note_picked'         => 'Your package has been picked up by the courier.',
+'tracking_note_dropping_off'   => 'Your package is on its way to the destination.',
+'tracking_note_in_transit'     => 'Your package is currently in transit.',
+'tracking_note_on_hold'        => 'Your package delivery is temporarily on hold.',
+'tracking_note_delivered'      => 'Your package has been delivered.',
+'tracking_note_cancelled'      => 'Your package delivery has been cancelled.',
+'tracking_note_rejected'       => 'Your package delivery was rejected.',
+'tracking_note_return'         => 'Your package is being returned to the sender.',
+'tracking_no_update'           => 'No shipping updates yet.',
 ];

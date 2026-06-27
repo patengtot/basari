@@ -254,35 +254,74 @@
 @if($order->biteship_tracking_id)
 <script>
 $(document).ready(function() {
+    const statusLabels = {
+        'confirmed':    'Pesanan Dikonfirmasi',
+        'allocated':    'Kurir Dialokasikan',
+        'picking_up':   'Kurir Menuju Pengirim',
+        'picked':       'Paket Diambil Kurir',
+        'dropping_off': 'Paket Menuju Tujuan',
+        'in_transit':   'Paket Dalam Perjalanan',
+        'on_hold':      'Paket Ditahan Sementara',
+        'delivered':    'Paket Telah Sampai',
+        'cancelled':    'Pengiriman Dibatalkan',
+        'rejected':     'Pengiriman Ditolak',
+        'return':       'Paket Dikembalikan',
+    };
+
+    const statusNotes = {
+        'confirmed':    'Pesanan telah dikonfirmasi dan menunggu penjemputan.',
+        'allocated':    'Kurir telah dialokasikan untuk mengambil paket.',
+        'picking_up':   'Kurir sedang dalam perjalanan menuju lokasi pengirim.',
+        'picked':       'Paket telah diambil oleh kurir.',
+        'dropping_off': 'Paket sedang dalam perjalanan menuju alamat tujuan.',
+        'in_transit':   'Paket sedang dalam perjalanan.',
+        'on_hold':      'Pengiriman paket sedang ditahan sementara.',
+        'delivered':    'Paket telah sampai di tujuan.',
+        'cancelled':    'Pengiriman paket dibatalkan.',
+        'rejected':     'Pengiriman paket ditolak.',
+        'return':       'Paket sedang dikembalikan ke pengirim.',
+    };
+
+    const statusColors = {
+        'confirmed':    { bg: '#f9fafb', dot: '#6b7280', text: '#374151' },
+        'allocated':    { bg: '#f9fafb', dot: '#6b7280', text: '#374151' },
+        'picking_up':   { bg: '#fff7ed', dot: '#f97316', text: '#c2410c' },
+        'picked':       { bg: '#f5f3ff', dot: '#7c3aed', text: '#6d28d9' },
+        'dropping_off': { bg: '#eff6ff', dot: '#3b82f6', text: '#1d4ed8' },
+        'in_transit':   { bg: '#eff6ff', dot: '#3b82f6', text: '#1d4ed8' },
+        'on_hold':      { bg: '#fefce8', dot: '#ca8a04', text: '#92400e' },
+        'delivered':    { bg: '#dcfce7', dot: '#16a34a', text: '#15803d' },
+        'cancelled':    { bg: '#fef2f2', dot: '#ef4444', text: '#b91c1c' },
+        'rejected':     { bg: '#fef2f2', dot: '#ef4444', text: '#b91c1c' },
+        'return':       { bg: '#fef9f0', dot: '#f97316', text: '#c2410c' },
+    };
+
     $.ajax({
         url: '/tracking/{{ $order->biteship_tracking_id }}',
         type: 'GET',
         success: function(data) {
             $('#trackingLoading').addClass('hidden');
+
             if (data.success !== false && data.courier) {
                 $('#trackingContent').removeClass('hidden');
-                const status  = data.courier.status ?? data.status ?? 'Dalam Proses';
-                $('#trackingStatus').text(status);
+
+                const status = data.courier.status ?? data.status ?? '';
+                const statusLabel = statusLabels[status] || status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                $('#trackingStatus').text(statusLabel);
+
                 const history = data.courier.history ?? [];
+
                 if (history.length > 0) {
-                    const statusColors = {
-                        'delivered':    { bg: '#dcfce7', dot: '#16a34a', text: '#15803d' },
-                        'dropping_off': { bg: '#eff6ff', dot: '#3b82f6', text: '#1d4ed8' },
-                        'in_transit':   { bg: '#eff6ff', dot: '#3b82f6', text: '#1d4ed8' },
-                        'picked':       { bg: '#f5f3ff', dot: '#7c3aed', text: '#6d28d9' },
-                        'picking_up':   { bg: '#fff7ed', dot: '#f97316', text: '#c2410c' },
-                        'allocated':    { bg: '#f9fafb', dot: '#6b7280', text: '#374151' },
-                        'confirmed':    { bg: '#f9fafb', dot: '#6b7280', text: '#374151' },
-                        'on_hold':      { bg: '#fefce8', dot: '#ca8a04', text: '#92400e' },
-                        'cancelled':    { bg: '#fef2f2', dot: '#ef4444', text: '#b91c1c' },
-                    };
                     const historyHtml = [...history].reverse().map(function(h, index) {
                         const isFirst = index === 0;
                         const color   = statusColors[h.status] || { bg: '#f9fafb', dot: '#6b7280', text: '#374151' };
                         const date    = h.updated_at ? new Date(h.updated_at).toLocaleString('id-ID', {
-                            day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                            day: '2-digit', month: '2-digit', year: 'numeric',
+                            hour: '2-digit', minute: '2-digit'
                         }) : '';
-                        const label = h.status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                        const label = statusLabels[h.status] || h.status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                        const note  = h.note || statusNotes[h.status] || '';
+
                         return `
                             <div class="flex gap-4 relative">
                                 <div class="flex flex-col items-center flex-shrink-0">
@@ -296,18 +335,27 @@ $(document).ready(function() {
                                               style="background:${color.bg}; color:${color.text};">${label}</span>
                                         <span class="text-xs text-gray-400">${date}</span>
                                     </div>
-                                    <p class="text-sm text-gray-600">${h.note ?? ''}</p>
+                                    <p class="text-sm text-gray-600">${note}</p>
                                 </div>
                             </div>
                         `;
                     }).join('');
                     $('#trackingHistory').html(historyHtml);
                 } else {
-                    if (status === 'delivered') {
-                        $('#trackingHistory').html(`<div class="flex gap-4"><div class="flex-shrink-0 w-4 h-4 rounded-full mt-1" style="background:#16a34a;"></div><div><span class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background:#dcfce7; color:#15803d;">Delivered</span><p class="text-sm text-gray-600 mt-1">Paket telah sampai di tujuan.</p></div></div>`);
-                    } else {
-                        $('#trackingHistory').html('<p class="text-sm text-gray-400">Belum ada update pengiriman.</p>');
-                    }
+                    const color = statusColors[status] || { bg: '#f9fafb', dot: '#6b7280', text: '#374151' };
+                    const label = statusLabels[status] || status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    const note  = statusNotes[status] || 'Belum ada update pengiriman.';
+
+                    $('#trackingHistory').html(`
+                        <div class="flex gap-4">
+                            <div class="flex-shrink-0 w-4 h-4 rounded-full mt-1" style="background:${color.dot};"></div>
+                            <div>
+                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full"
+                                      style="background:${color.bg}; color:${color.text};">${label}</span>
+                                <p class="text-sm text-gray-600 mt-1">${note}</p>
+                            </div>
+                        </div>
+                    `);
                 }
             } else {
                 $('#trackingError').removeClass('hidden');

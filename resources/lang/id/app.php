@@ -196,4 +196,31 @@ return [
     'footer_our_story'          => 'Cerita Kami',
     'footer_contact'            => 'Kontak',
     'footer_contact_us'         => 'Hubungi Kami',
+
+    // Tracking Status
+'tracking_status_confirmed'    => 'Pesanan Dikonfirmasi',
+'tracking_status_allocated'    => 'Kurir Dialokasikan',
+'tracking_status_picking_up'   => 'Kurir Menuju Pengirim',
+'tracking_status_picked'       => 'Paket Diambil Kurir',
+'tracking_status_dropping_off' => 'Paket Menuju Tujuan',
+'tracking_status_in_transit'   => 'Paket Dalam Perjalanan',
+'tracking_status_on_hold'      => 'Paket Ditahan Sementara',
+'tracking_status_delivered'    => 'Paket Telah Sampai',
+'tracking_status_cancelled'    => 'Pengiriman Dibatalkan',
+'tracking_status_rejected'     => 'Pengiriman Ditolak',
+'tracking_status_return'       => 'Paket Dikembalikan',
+
+// Tracking Notes
+'tracking_note_confirmed'      => 'Pesanan kamu telah dikonfirmasi dan sedang menunggu penjemputan.',
+'tracking_note_allocated'      => 'Kurir telah dialokasikan untuk mengambil paket kamu.',
+'tracking_note_picking_up'     => 'Kurir sedang dalam perjalanan menuju lokasi pengirim.',
+'tracking_note_picked'         => 'Paket kamu telah diambil oleh kurir.',
+'tracking_note_dropping_off'   => 'Paket kamu sedang dalam perjalanan menuju alamat tujuan.',
+'tracking_note_in_transit'     => 'Paket kamu sedang dalam perjalanan.',
+'tracking_note_on_hold'        => 'Pengiriman paket kamu sedang ditahan sementara.',
+'tracking_note_delivered'      => 'Paket kamu telah sampai di tujuan.',
+'tracking_note_cancelled'      => 'Pengiriman paket kamu dibatalkan.',
+'tracking_note_rejected'       => 'Pengiriman paket kamu ditolak.',
+'tracking_note_return'         => 'Paket kamu sedang dikembalikan ke pengirim.',
+'tracking_no_update'           => 'Belum ada update pengiriman.',
 ];
