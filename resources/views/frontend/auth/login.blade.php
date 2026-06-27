@@ -28,7 +28,12 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <div class="flex items-center justify-between mb-1">
+                    <label class="block text-sm font-medium text-gray-700">Password</label>
+                    <a href="{{ route('password.request') }}" class="text-xs text-blue-700 hover:underline">
+                        Lupa password?
+                    </a>
+                </div>
                 <div class="relative">
                     <input type="password" name="password" id="passwordInput"
                         class="input-field w-full pr-10" placeholder="••••••••" required>

@@ -22,6 +22,13 @@ Route::post('/login', [UserLoginController::class, 'login']);
 Route::post('/logout', [UserLoginController::class, 'logout'])->name('logout');
 Route::get('/register', [UserRegisterController::class, 'showRegister'])->name('register');
 Route::post('/register', [UserRegisterController::class, 'register']);
+Route::get('/register/verify', [\App\Http\Controllers\Auth\UserRegisterController::class, 'verify'])
+    ->name('register.verify');
+
+Route::get('/forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'showForm'])->name('password.request');
+Route::post('/forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendLink'])->name('password.email');
+Route::get('/reset-password/{token}', [\App\Http\Controllers\Auth\ResetPasswordController::class, 'showForm'])->name('password.reset');
+Route::post('/reset-password', [\App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])->name('password.update');
 Route::post('/chat/start-order', [\App\Http\Controllers\ChatController::class, 'startFromOrder'])->name('chat.start-order');
 
 // Email Verification
