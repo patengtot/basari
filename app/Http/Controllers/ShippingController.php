@@ -255,16 +255,15 @@ class ShippingController extends Controller
 {
     \Log::info('Biteship webhook received', $request->all());
 
-    // Handle verifikasi awal dari Biteship — request kosong
     $data = $request->json()->all();
     if (empty($data)) {
         return response()->json(['success' => true], 200);
     }
 
-    $status          = $data['courier']['status'] ?? $data['status'] ?? null;
-    $biteshipOrderId = $data['id'] ?? null;
+    // Struktur data Biteship: order_id dan status di root
+    $status          = $data['status'] ?? null;
+    $biteshipOrderId = $data['order_id'] ?? $data['id'] ?? null;
 
-    // Kalau tidak ada id atau status, tetap return ok
     if (!$biteshipOrderId || !$status) {
         return response()->json(['success' => true], 200);
     }
@@ -275,18 +274,26 @@ class ShippingController extends Controller
         return response()->json(['success' => true], 200);
     }
 
+    // Update tracking info kalau ada
+    if (isset($data['courier_tracking_id']) && !$order->biteship_tracking_id) {
+        $order->update([
+            'biteship_tracking_id' => $data['courier_tracking_id'],
+            'tracking_number'      => $data['courier_waybill_id'] ?? $order->tracking_number,
+        ]);
+    }
+
     $statusMap = [
-        'confirmed'  => 'processing',
-        'allocated'  => 'processing',
-        'picked_up'  => 'processing',
-        'picking_up' => 'processing',
+        'confirmed'    => 'processing',
+        'allocated'    => 'processing',
+        'picked_up'    => 'processing',
+        'picking_up'   => 'processing',
         'dropping_off' => 'shipped',
-        'in_transit' => 'shipped',
-        'delivered'  => 'done',
-        'cancelled'  => 'cancelled',
-        'rejected'   => 'cancelled',
-        'on_hold'    => 'shipped',
-        'return'     => 'cancelled',
+        'in_transit'   => 'shipped',
+        'delivered'    => 'done',
+        'cancelled'    => 'cancelled',
+        'rejected'     => 'cancelled',
+        'on_hold'      => 'shipped',
+        'return'       => 'cancelled',
     ];
 
     $newStatus = $statusMap[strtolower($status)] ?? null;
