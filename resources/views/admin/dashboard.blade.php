@@ -27,26 +27,23 @@
 
 {{-- Traffic Chart --}}
 <div class="bg-white rounded-xl border border-gray-100 p-6 mb-6">
-    <div class="flex items-center justify-between mb-4">
+        <div class="flex flex-col gap-3 mb-4">
         <h2 class="font-semibold text-gray-800">Traffic Pengunjung</h2>
-        <div class="flex flex-col md:flex-row md:items-center gap-3">
-            {{-- Date range --}}
-            <div class="flex items-center gap-2">
+        <div class="flex flex-col gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
                 <input type="date" id="trafficFrom"
                     value="{{ now()->subDays(6)->format('Y-m-d') }}"
-                    class="text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                    class="text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-300 flex-1 min-w-0">
                 <span class="text-gray-400 text-xs">–</span>
                 <input type="date" id="trafficTo"
                     value="{{ now()->format('Y-m-d') }}"
-                    class="text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                    class="text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-300 flex-1 min-w-0">
                 <button onclick="applyTrafficDate()"
-                    class="px-3 py-1.5 text-xs bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition">
+                    class="px-3 py-1.5 text-xs bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition whitespace-nowrap">
                     Terapkan
                 </button>
             </div>
-            <div class="w-px h-5 bg-gray-200"></div>
-            {{-- Period buttons --}}
-            <div class="flex flex-wrap gap-2">
+            <div class="flex gap-2">
                 <button onclick="loadTraffic('daily')" id="traffic-daily"
                     class="traffic-btn px-3 py-1.5 text-xs rounded-lg border border-blue-700 bg-blue-700 text-white transition">
                     Harian
@@ -79,9 +76,9 @@
 
     {{-- Revenue Chart --}}
 <div class="md:col-span-2 bg-white rounded-xl border border-gray-100 p-6">
-    <div class="flex items-center justify-between mb-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
         <h2 class="font-semibold text-gray-800">Laporan Keuangan</h2>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
             <button onclick="loadRevenue('daily')" id="revenue-daily"
                 class="revenue-btn px-3 py-1.5 text-xs rounded-lg border border-blue-700 bg-blue-700 text-white transition">
                 Harian
@@ -102,16 +99,16 @@
     </div>
 
     {{-- Summary angka --}}
-    <div class="grid grid-cols-3 gap-3 mb-5">
-    <div class="bg-blue-50 rounded-xl p-4">
+<div class="flex gap-3 mb-5 overflow-x-auto pb-2">
+    <div class="bg-blue-50 rounded-xl p-4 min-w-[140px] flex-shrink-0">
         <p class="text-xs text-gray-400 mb-1">Total Pendapatan <span id="summaryPeriodLabel" class="text-blue-700 font-medium"></span></p>
         <p class="text-lg font-bold text-blue-900" id="summaryRevenue">Rp 0</p>
     </div>
-    <div class="bg-gray-50 rounded-xl p-4">
+    <div class="bg-gray-50 rounded-xl p-4 min-w-[140px] flex-shrink-0">
         <p class="text-xs text-gray-400 mb-1">Jumlah Pesanan</p>
         <p class="text-lg font-bold text-gray-800" id="summaryOrders">0</p>
     </div>
-    <div class="bg-gray-50 rounded-xl p-4">
+    <div class="bg-gray-50 rounded-xl p-4 min-w-[140px] flex-shrink-0">
         <p class="text-xs text-gray-400 mb-1">Rata-rata per Pesanan</p>
         <p class="text-lg font-bold text-gray-800" id="summaryAvg">Rp 0</p>
     </div>

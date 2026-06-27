@@ -11,22 +11,23 @@
 </div>
 
 {{-- Tab Kategori --}}
-<div class="flex gap-2 flex-wrap mb-4">
+<div class="flex gap-2 flex-wrap mb-4 overflow-x-auto pb-1">
     <a href="{{ route('admin.products.index') }}"
-    class="px-4 py-2 rounded-xl text-sm font-medium transition border-2
+    class="px-4 py-2 rounded-xl text-sm font-medium transition border-2 whitespace-nowrap
             {{ !request('category') ? 'border-blue-700 bg-blue-50 text-blue-900' : 'border-gray-200 text-gray-600 hover:border-blue-400' }}">
         Semua ({{ $allProducts->count() }})
     </a>
-        @foreach($categories as $cat)
+    @foreach($categories as $cat)
     <a href="{{ route('admin.products.index', ['category' => $cat->id]) }}"
-    class="px-4 py-2 rounded-xl text-sm font-medium transition border-2
+    class="px-4 py-2 rounded-xl text-sm font-medium transition border-2 whitespace-nowrap
             {{ request('category') == $cat->id ? 'border-blue-700 bg-blue-50 text-blue-900' : 'border-gray-200 text-gray-600 hover:border-blue-400' }}">
         {{ $cat->name }} ({{ $allProducts->where('category_id', $cat->id)->count() }})
     </a>
-        @endforeach
+    @endforeach
 </div>
 
-<div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+{{-- Desktop Table --}}
+<div class="hidden md:block bg-white rounded-xl border border-gray-100 overflow-hidden">
     <table class="w-full text-sm">
         <thead>
             <tr class="text-left text-gray-400 border-b border-gray-100 bg-gray-50">
@@ -46,8 +47,7 @@
                         <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
                             @if($product->images && count($product->images) > 0)
                             <img src="{{ asset('storage/' . $product->images[$product->thumbnail_index ?? 0]) }}"
-                                alt="{{ $product->name }}"
-                                class="w-full h-full object-cover">
+                                alt="{{ $product->name }}" class="w-full h-full object-cover">
                             @else
                             <div class="w-full h-full flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -82,9 +82,7 @@
                     </span>
                 </td>
                 <td class="px-4 py-3 flex items-center gap-2">
-                    <a href="{{ route('admin.products.edit', $product) }}"
-                       class="text-blue-500 hover:underline text-xs">Edit</a>
-
+                    <a href="{{ route('admin.products.edit', $product) }}" class="text-blue-500 hover:underline text-xs">Edit</a>
                     @if($product->order_items_count === 0)
                     <form method="POST" action="{{ route('admin.products.destroy', $product) }}"
                           onsubmit="return confirm('Hapus produk ini permanen?')">
@@ -93,7 +91,7 @@
                     </form>
                     @else
                     <button type="button"
-                            onclick="alert('Produk ini tidak bisa dihapus karena sedang ada pesanan yang menggunakan produk ini.')"
+                            onclick="alert('Produk ini tidak bisa dihapus karena sedang ada pesanan.')"
                             class="text-red-500 hover:underline text-xs">Hapus</button>
                     @endif
                 </td>
@@ -105,6 +103,70 @@
             @endforelse
         </tbody>
     </table>
+</div>
+
+{{-- Mobile Cards --}}
+<div class="md:hidden space-y-3">
+    @forelse($products as $product)
+    <div class="bg-white rounded-xl border border-gray-100 p-4">
+        <div class="flex gap-3">
+            <div class="w-16 h-16 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
+                @if($product->images && count($product->images) > 0)
+                <img src="{{ asset('storage/' . $product->images[$product->thumbnail_index ?? 0]) }}"
+                    alt="{{ $product->name }}" class="w-full h-full object-cover">
+                @else
+                <div class="w-full h-full flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                @endif
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="font-medium text-gray-800 line-clamp-1 mb-1">{{ $product->name }}</p>
+                <p class="text-xs text-gray-400 mb-1">{{ $product->category->name }}</p>
+                <p class="text-sm text-blue-900 font-semibold mb-2">Rp {{ number_format($product->price, 0, ',', '.') }}</p>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-xs px-2 py-1 rounded-full {{ $product->is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500' }}">
+                        {{ $product->is_active ? 'Aktif' : 'Nonaktif' }}
+                    </span>
+                    <span class="text-xs text-gray-500">Stok: {{ $product->stock }}
+                        @if($product->stock === 0)
+                        <span class="bg-red-100 text-red-600 px-1.5 py-0.5 rounded ml-1">Habis</span>
+                        @elseif($product->stock <= 5)
+                        <span class="bg-yellow-100 text-yellow-600 px-1.5 py-0.5 rounded ml-1">Hampir Habis</span>
+                        @endif
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="flex gap-3 mt-3 pt-3 border-t border-gray-50">
+            <a href="{{ route('admin.products.edit', $product) }}"
+               class="flex-1 text-center py-2 text-xs text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-50 transition">
+                Edit
+            </a>
+            @if($product->order_items_count === 0)
+            <form method="POST" action="{{ route('admin.products.destroy', $product) }}"
+                  onsubmit="return confirm('Hapus produk ini permanen?')" class="flex-1">
+                @csrf @method('DELETE')
+                <button type="submit" class="w-full py-2 text-xs text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition">
+                    Hapus
+                </button>
+            </form>
+            @else
+            <button type="button"
+                    onclick="alert('Produk ini tidak bisa dihapus karena sedang ada pesanan.')"
+                    class="flex-1 py-2 text-xs text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition">
+                Hapus
+            </button>
+            @endif
+        </div>
+    </div>
+    @empty
+    <div class="bg-white rounded-xl border border-gray-100 p-8 text-center text-gray-400">
+        Tidak ada produk di kategori ini.
+    </div>
+    @endforelse
 </div>
 
 @endsection

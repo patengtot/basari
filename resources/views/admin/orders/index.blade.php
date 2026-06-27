@@ -5,7 +5,6 @@
 
 @section('content')
 
-{{-- Tab Status --}}
 @php
 $statuses = [
     ''                       => 'Semua',
@@ -19,20 +18,22 @@ $statuses = [
 ];
 @endphp
 
+{{-- Tab Status --}}
 <div class="flex gap-2 flex-wrap mb-4 overflow-x-auto pb-1">
     @foreach($statuses as $value => $label)
     <a href="{{ route('admin.orders.index', $value ? ['status' => $value] : []) }}"
-       class="px-4 py-2 rounded-xl text-sm font-medium transition border-2 flex-shrink-0
+       class="px-3 py-1.5 rounded-xl text-xs font-medium transition border-2 flex-shrink-0
               {{ request('status', '') === $value
                   ? 'border-blue-700 bg-blue-50 text-blue-900'
                   : 'border-gray-200 text-gray-600 hover:border-blue-400' }}">
         {{ $label }}
-        <span class="ml-1 text-xs opacity-60">({{ $value ? $allOrders->where('status', $value)->count() : $allOrders->count() }})</span>
+        <span class="ml-1 opacity-60">({{ $value ? $allOrders->where('status', $value)->count() : $allOrders->count() }})</span>
     </a>
     @endforeach
 </div>
 
-<div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+{{-- Desktop Table --}}
+<div class="hidden md:block bg-white rounded-xl border border-gray-100 overflow-hidden">
     <table class="w-full text-sm">
         <thead>
             <tr class="text-left text-gray-400 border-b border-gray-100 bg-gray-50">
@@ -80,27 +81,83 @@ $statuses = [
                 </td>
                 <td class="px-4 py-3 text-gray-400">{{ $order->created_at->format('d M Y') }}</td>
                 <td class="px-4 py-3 flex items-center gap-3">
-                    <a href="{{ route('admin.orders.show', $order) }}"
-                       class="text-blue-500 hover:underline text-xs">Detail</a>
-
+                    <a href="{{ route('admin.orders.show', $order) }}" class="text-blue-500 hover:underline text-xs">Detail</a>
                     @if(in_array($order->status, ['done', 'cancelled']))
                     <form method="POST" action="{{ route('admin.orders.destroy', $order) }}"
                           onsubmit="return confirm('Hapus pesanan {{ $order->invoice_number }}?')">
                         @csrf @method('DELETE')
                         <button type="submit" class="text-red-500 hover:underline text-xs">Hapus</button>
                     </form>
-                    @else
-                    <span class="text-xs text-gray-300 italic">Tidak bisa dihapus</span>
                     @endif
                 </td>
             </tr>
             @empty
             <tr>
-                <td colspan="6" class="px-4 py-8 text-center text-gray-400">Belum ada pesanan.</td>
+                <td colspan="7" class="px-4 py-8 text-center text-gray-400">Belum ada pesanan.</td>
             </tr>
             @endforelse
         </tbody>
     </table>
+</div>
+
+{{-- Mobile Cards --}}
+<div class="md:hidden space-y-3">
+    @forelse($orders as $order)
+    <div class="bg-white rounded-xl border border-gray-100 p-4">
+        <div class="flex items-start justify-between mb-2">
+            <div>
+                <p class="font-medium text-gray-800 text-sm">{{ $order->invoice_number }}</p>
+                @if($order->shipping_type === 'international')
+                <span class="text-xs px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">🌍 Intl</span>
+                @endif
+                <p class="text-xs text-gray-400 mt-0.5">{{ $order->created_at->format('d M Y') }}</p>
+            </div>
+            <span class="text-xs px-2 py-1 rounded-full flex-shrink-0
+                @if($order->status === 'pending') bg-yellow-100 text-yellow-700
+                @elseif($order->status === 'waiting_shipping_cost') bg-orange-100 text-orange-700
+                @elseif($order->status === 'paid') bg-blue-100 text-blue-700
+                @elseif($order->status === 'processing') bg-purple-100 text-purple-700
+                @elseif($order->status === 'shipped') bg-indigo-100 text-indigo-700
+                @elseif($order->status === 'done') bg-green-100 text-green-700
+                @else bg-red-100 text-red-700 @endif">
+                {{ $order->status === 'waiting_shipping_cost' ? 'Menunggu Ongkir' : ucfirst($order->status) }}
+            </span>
+        </div>
+
+        <div class="text-xs text-gray-500 space-y-1 mb-3">
+            <p><span class="text-gray-400">Pembeli:</span> {{ $order->user->name }}</p>
+            <p><span class="text-gray-400">Total:</span> <span class="text-blue-900 font-semibold">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</span></p>
+            <div>
+                @foreach($order->items->take(2) as $item)
+                <p class="line-clamp-1">{{ $item->product_name }}</p>
+                @endforeach
+                @if($order->items->count() > 2)
+                <p class="text-gray-400">+{{ $order->items->count() - 2 }} produk lainnya</p>
+                @endif
+            </div>
+        </div>
+
+        <div class="flex gap-2 pt-3 border-t border-gray-50">
+            <a href="{{ route('admin.orders.show', $order) }}"
+               class="flex-1 text-center py-2 text-xs text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-50 transition">
+                Detail
+            </a>
+            @if(in_array($order->status, ['done', 'cancelled']))
+            <form method="POST" action="{{ route('admin.orders.destroy', $order) }}"
+                  onsubmit="return confirm('Hapus pesanan {{ $order->invoice_number }}?')" class="flex-1">
+                @csrf @method('DELETE')
+                <button type="submit" class="w-full py-2 text-xs text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition">
+                    Hapus
+                </button>
+            </form>
+            @endif
+        </div>
+    </div>
+    @empty
+    <div class="bg-white rounded-xl border border-gray-100 p-8 text-center text-gray-400">
+        Belum ada pesanan.
+    </div>
+    @endforelse
 </div>
 
 @endsection

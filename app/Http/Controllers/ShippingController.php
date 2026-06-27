@@ -252,59 +252,67 @@ class ShippingController extends Controller
     }
 
     public function webhook(Request $request)
-    {
-        \Log::info('Biteship webhook received', $request->all());
+{
+    \Log::info('Biteship webhook received', $request->all());
 
-        $data            = $request->json()->all();
-        $status          = $data['courier']['status'] ?? $data['status'] ?? null;
-        $biteshipOrderId = $data['id'] ?? null;
+    // Handle verifikasi awal dari Biteship — request kosong
+    $data = $request->json()->all();
+    if (empty($data)) {
+        return response()->json(['success' => true], 200);
+    }
 
-        if (!$biteshipOrderId || !$status) {
-            return response()->json(['success' => false], 400);
-        }
+    $status          = $data['courier']['status'] ?? $data['status'] ?? null;
+    $biteshipOrderId = $data['id'] ?? null;
 
-        $order = \App\Models\Order::where('biteship_order_id', $biteshipOrderId)->first();
+    // Kalau tidak ada id atau status, tetap return ok
+    if (!$biteshipOrderId || !$status) {
+        return response()->json(['success' => true], 200);
+    }
 
-        if (!$order) {
-            return response()->json(['success' => false], 404);
-        }
+    $order = \App\Models\Order::where('biteship_order_id', $biteshipOrderId)->first();
 
-        $statusMap = [
-            'confirmed'  => 'processing',
-            'allocated'  => 'processing',
-            'picked_up'  => 'processing',
-            'in_transit' => 'shipped',
-            'delivered'  => 'done',
-            'cancelled'  => 'cancelled',
-            'rejected'   => 'cancelled',
-            'on_hold'    => 'shipped',
-            'return'     => 'cancelled',
+    if (!$order) {
+        return response()->json(['success' => true], 200);
+    }
+
+    $statusMap = [
+        'confirmed'  => 'processing',
+        'allocated'  => 'processing',
+        'picked_up'  => 'processing',
+        'picking_up' => 'processing',
+        'dropping_off' => 'shipped',
+        'in_transit' => 'shipped',
+        'delivered'  => 'done',
+        'cancelled'  => 'cancelled',
+        'rejected'   => 'cancelled',
+        'on_hold'    => 'shipped',
+        'return'     => 'cancelled',
+    ];
+
+    $newStatus = $statusMap[strtolower($status)] ?? null;
+
+    if ($newStatus && $order->status !== $newStatus) {
+        $order->update(['status' => $newStatus]);
+
+        $messages = [
+            'processing' => 'Pesanan kamu sedang diproses dan akan segera dijemput kurir.',
+            'shipped'    => 'Pesanan kamu sedang dalam perjalanan ke alamat tujuan.',
+            'done'       => 'Pesanan kamu telah sampai. Terima kasih sudah berbelanja di Basari!',
+            'cancelled'  => 'Pesanan kamu dibatalkan. Hubungi kami untuk informasi lebih lanjut.',
         ];
 
-        $newStatus = $statusMap[strtolower($status)] ?? null;
-
-        if ($newStatus && $order->status !== $newStatus) {
-            $order->update(['status' => $newStatus]);
-
-            $messages = [
-                'processing' => 'Pesanan kamu sedang diproses dan akan segera dijemput kurir.',
-                'shipped'    => 'Pesanan kamu sedang dalam perjalanan ke alamat tujuan.',
-                'done'       => 'Pesanan kamu telah sampai. Terima kasih sudah berbelanja di Basari!',
-                'cancelled'  => 'Pesanan kamu dibatalkan. Hubungi kami untuk informasi lebih lanjut.',
-            ];
-
-            if (isset($messages[$newStatus])) {
-                \App\Helpers\NotificationHelper::toUser(
-                    $order->user_id,
-                    'Update Status Pesanan',
-                    $messages[$newStatus],
-                    route('orders.show', $order->id)
-                );
-            }
+        if (isset($messages[$newStatus])) {
+            \App\Helpers\NotificationHelper::toUser(
+                $order->user_id,
+                'Update Status Pesanan',
+                $messages[$newStatus],
+                route('orders.show', $order->id)
+            );
         }
-
-        return response()->json(['success' => true]);
     }
+
+    return response()->json(['success' => true], 200);
+}
 
     public function syncTracking(Request $request)
     {

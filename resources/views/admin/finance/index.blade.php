@@ -7,25 +7,23 @@
 
 {{-- Filter Bar --}}
 <div class="bg-white rounded-xl border border-gray-100 p-5 mb-6">
-    <div class="flex flex-wrap gap-6">
+    <div class="flex flex-col gap-4">
 
         {{-- Rentang Tanggal --}}
         <div>
             <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Rentang Tanggal</p>
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
                 <input type="date" id="dateFrom" value="{{ $start->format('Y-m-d') }}"
-                    class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                    class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-300 flex-1 min-w-0">
                 <span class="text-gray-400">–</span>
                 <input type="date" id="dateTo" value="{{ $end->format('Y-m-d') }}"
-                    class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                    class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-300 flex-1 min-w-0">
                 <button id="applyDate"
-                    class="px-4 py-1.5 text-sm bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition">
+                    class="px-4 py-1.5 text-sm bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition whitespace-nowrap">
                     Tampilkan
                 </button>
             </div>
         </div>
-
-        <div class="w-px bg-gray-100 hidden md:block"></div>
 
         {{-- Pilihan Cepat --}}
         <div>
@@ -47,24 +45,19 @@
             </div>
         </div>
 
-        <div class="w-px bg-gray-100 hidden md:block"></div>
-
-        {{-- Tampilan Grafik --}}
-        <div>
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Tampilan Grafik</p>
-            <div class="flex gap-2">
-                @foreach (['daily' => 'Harian', 'weekly' => 'Mingguan', 'monthly' => 'Bulanan'] as $k => $v)
-                <button data-group="{{ $k }}"
-                    class="group-btn px-3 py-1.5 text-xs rounded-lg border border-gray-200 text-gray-600 hover:border-blue-700 hover:text-blue-700 transition">
-                    {{ $v }}
-                </button>
-                @endforeach
+        {{-- Tampilan Grafik + Export --}}
+        <div class="flex flex-wrap items-end justify-between gap-3">
+            <div>
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Tampilan Grafik</p>
+                <div class="flex gap-2 flex-wrap">
+                    @foreach (['daily' => 'Harian', 'weekly' => 'Mingguan', 'monthly' => 'Bulanan'] as $k => $v)
+                    <button data-group="{{ $k }}"
+                        class="group-btn px-3 py-1.5 text-xs rounded-lg border border-gray-200 text-gray-600 hover:border-blue-700 hover:text-blue-700 transition">
+                        {{ $v }}
+                    </button>
+                    @endforeach
+                </div>
             </div>
-            <p class="text-xs text-gray-400 mt-1.5">Bar grafik dipecah per hari / minggu / bulan</p>
-        </div>
-
-        {{-- Export --}}
-        <div class="ml-auto flex items-end">
             <button id="exportPdf"
                 class="flex items-center gap-2 px-4 py-1.5 text-sm border border-red-500 text-red-600 rounded-lg hover:bg-red-50 transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -81,43 +74,44 @@
 
 {{-- Summary Cards --}}
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-    <div class="bg-white rounded-xl border border-gray-100 p-5">
+    <div class="bg-white rounded-xl border border-gray-100 p-4">
         <p class="text-xs text-gray-400 mb-1">Total Pendapatan</p>
-        <p class="text-xl font-bold text-blue-900" id="cardRevenue">Rp –</p>
+        <p class="text-lg font-bold text-blue-900" id="cardRevenue">Rp –</p>
         <p class="text-xs text-gray-400 mt-1">dari pesanan selesai</p>
     </div>
-    <div class="bg-white rounded-xl border border-gray-100 p-5">
+    <div class="bg-white rounded-xl border border-gray-100 p-4">
         <p class="text-xs text-gray-400 mb-1">Pesanan Masuk</p>
-        <p class="text-xl font-bold text-gray-800" id="cardOrders">–</p>
+        <p class="text-lg font-bold text-gray-800" id="cardOrders">–</p>
         <p class="text-xs text-gray-400 mt-1">tidak termasuk dibatalkan</p>
     </div>
-    <div class="bg-white rounded-xl border border-gray-100 p-5">
+    <div class="bg-white rounded-xl border border-gray-100 p-4">
         <p class="text-xs text-gray-400 mb-1">Rata-rata per Pesanan</p>
-        <p class="text-xl font-bold text-gray-800" id="cardAvg">Rp –</p>
+        <p class="text-lg font-bold text-gray-800" id="cardAvg">Rp –</p>
         <p class="text-xs text-gray-400 mt-1">dari pesanan selesai</p>
     </div>
-    <div class="bg-white rounded-xl border border-gray-100 p-5">
+    <div class="bg-white rounded-xl border border-gray-100 p-4">
         <p class="text-xs text-gray-400 mb-1">Dibatalkan</p>
-        <p class="text-xl font-bold text-red-500" id="cardCancel">–</p>
+        <p class="text-lg font-bold text-red-500" id="cardCancel">–</p>
         <p class="text-xs text-gray-400 mt-1">pesanan</p>
     </div>
 </div>
+
+{{-- Grafik Utama --}}
 <div class="bg-white rounded-xl border border-gray-100 p-6 mb-6">
     <div class="flex items-center justify-between mb-4">
         <h2 class="font-semibold text-gray-800">Grafik Pendapatan & Pesanan</h2>
         <span id="chartLoading" class="text-xs text-gray-400 hidden">Memuat...</span>
     </div>
-    <div class="relative h-72">
+    <div class="relative h-56 md:h-72">
         <canvas id="financeChart"></canvas>
     </div>
 </div>
 
-{{-- Category & Status Breakdown --}}
+{{-- Category & Status --}}
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-
     <div class="bg-white rounded-xl border border-gray-100 p-6">
         <h2 class="font-semibold text-gray-800 mb-4">Pendapatan per Kategori</h2>
-        <div class="relative h-52 mb-4">
+        <div class="relative h-48 mb-4">
             <canvas id="categoryChart"></canvas>
         </div>
         <div id="categoryTable" class="space-y-2"></div>
@@ -125,14 +119,14 @@
 
     <div class="bg-white rounded-xl border border-gray-100 p-6">
         <h2 class="font-semibold text-gray-800 mb-4">Distribusi Status Pesanan</h2>
-        <div class="relative h-52 mb-4">
+        <div class="relative h-48 mb-4">
             <canvas id="statusChart"></canvas>
         </div>
         <div id="statusTable" class="space-y-2"></div>
     </div>
-
 </div>
 
+{{-- Top Products --}}
 <div class="bg-white rounded-xl border border-gray-100 p-6 mb-6">
     <h2 class="font-semibold text-gray-800 mb-4">Produk Terlaris</h2>
     <div class="overflow-x-auto">
@@ -165,8 +159,6 @@ let currentPreset = '30days';
 let financeChart = null, categoryChart = null, statusChart = null;
 
 const fmt = n => 'Rp ' + Number(n).toLocaleString('id-ID');
-
-// ── Chart builders ─────────────────────────────────────────────────────
 
 function initFinanceChart(labels, revenues, orders) {
     const ctx = document.getElementById('financeChart').getContext('2d');
@@ -221,11 +213,8 @@ function initDoughnut(id, labels, values, colors) {
     else statusChart = chart;
 }
 
-// ── Main fetch ─────────────────────────────────────────────────────────
-
 function loadData() {
     document.getElementById('chartLoading').classList.remove('hidden');
-
     const params = new URLSearchParams({ from: currentFrom, to: currentTo });
 
     fetch(`{{ route('admin.finance.chart') }}?` + params)
@@ -233,25 +222,21 @@ function loadData() {
         .then(data => {
             document.getElementById('chartLoading').classList.add('hidden');
 
-            // Cards
             const s = data.summary;
             document.getElementById('cardRevenue').textContent = fmt(s.revenue);
             document.getElementById('cardOrders').textContent  = s.totalOrders;
             document.getElementById('cardAvg').textContent     = fmt(s.avgOrder);
             document.getElementById('cardCancel').textContent  = s.cancelOrders;
 
-            // Label rentang
             document.getElementById('dateRangeLabel').textContent =
                 `Data dari ${fmtDate(currentFrom)} sampai ${fmtDate(currentTo)}`;
 
-            // Chart utama
             initFinanceChart(
                 data.chart.map(d => d.label),
                 data.chart.map(d => d.revenue),
                 data.chart.map(d => d.orders)
             );
 
-            // Kategori
             const catColors = ['#1e3a8a','#2563eb','#60a5fa','#93c5fd','#bfdbfe'];
             initDoughnut('categoryChart',
                 data.byCategory.map(c => c.category),
@@ -268,14 +253,13 @@ function loadData() {
                 </div>`
             ).join('') || '<p class="text-xs text-gray-400 text-center py-4">Tidak ada data</p>';
 
-            // Status
             const statusColor = {
                 done: '#22c55e', paid: '#3b82f6', processing: '#8b5cf6',
                 shipped: '#0ea5e9', pending: '#f59e0b', cancelled: '#ef4444',
                 waiting_shipping_cost: '#f97316',
             };
             const statusLabel = {
-                pending: 'Menunggu Pembayaran', paid: 'Dibayar', processing: 'Diproses',
+                pending: 'Menunggu', paid: 'Dibayar', processing: 'Diproses',
                 shipped: 'Dikirim', done: 'Selesai', cancelled: 'Dibatalkan',
                 waiting_shipping_cost: 'Menunggu Ongkir',
             };
@@ -301,7 +285,6 @@ function loadData() {
                 </div>`;
             }).join('') || '<p class="text-xs text-gray-400 text-center py-4">Tidak ada data</p>';
 
-            // Top products
             document.getElementById('topProductsTable').innerHTML = data.topProducts.length
                 ? data.topProducts.map((p, i) =>
                     `<tr>
@@ -314,8 +297,6 @@ function loadData() {
                 : '<tr><td colspan="4" class="py-6 text-center text-gray-400 text-xs">Tidak ada data</td></tr>';
         });
 }
-
-// ── Helpers ────────────────────────────────────────────────────────────
 
 function fmtDate(str) {
     const d = new Date(str);
@@ -342,7 +323,8 @@ const pad      = n => String(n).padStart(2, '0');
 
 function setActive(selector, activeKey) {
     document.querySelectorAll(selector).forEach(b => {
-        const isActive = b.dataset[selector === '.preset-btn' ? 'preset' : 'group'] === activeKey;
+        const key = b.dataset[selector === '.preset-btn' ? 'preset' : 'group'];
+        const isActive = key === activeKey;
         b.classList.toggle('bg-blue-700', isActive);
         b.classList.toggle('text-white', isActive);
         b.classList.toggle('border-blue-700', isActive);
@@ -350,8 +332,6 @@ function setActive(selector, activeKey) {
         b.classList.toggle('border-gray-200', !isActive);
     });
 }
-
-// ── Event listeners ────────────────────────────────────────────────────
 
 document.querySelectorAll('.preset-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -386,7 +366,6 @@ document.getElementById('exportPdf').addEventListener('click', () => {
     window.location.href = `{{ route('admin.finance.export') }}?` + params;
 });
 
-// ── Init ───────────────────────────────────────────────────────────────
 setActive('.preset-btn', '30days');
 setActive('.group-btn', 'daily');
 loadData();

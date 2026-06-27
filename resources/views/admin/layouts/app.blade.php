@@ -9,10 +9,13 @@
 </head>
 <body class="bg-gray-100 font-sans">
 
+    {{-- Overlay untuk mobile --}}
+<div id="sidebarOverlay" class="hidden fixed inset-0 bg-black/40 z-30 md:hidden" onclick="closeSidebar()"></div>
+
 <div class="flex min-h-screen">
 
     {{-- Sidebar --}}
-    <aside id="sidebar" class="w-64 bg-white border-r border-gray-100 flex flex-col fixed h-full z-40 transition-transform duration-200">
+    <aside id="sidebar" class="w-64 bg-white border-r border-gray-100 flex flex-col fixed h-full z-40 transition-transform duration-200 -translate-x-full md:translate-x-0">
         
         {{-- Logo --}}
         <div class="px-6 py-5 border-b border-gray-100">
@@ -141,7 +144,7 @@
     </aside>
 
     {{-- Main Content --}}
-    <div id="mainContent" class="flex-1 ml-64 transition-all duration-200">
+    <div id="mainContent" class="flex-1 md:ml-64 transition-all duration-200">
 
         
         {{-- Topbar --}}
@@ -249,25 +252,37 @@
 </div>
 </div>
 <script>
-    const toggleBtn = document.getElementById('toggleSidebar');
-    const sidebar = document.getElementById('sidebar');
-    const main = document.getElementById('mainContent');
+const toggleBtn = document.getElementById('toggleSidebar');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebarOverlay');
 
-    let isHidden = false;
+function closeSidebar() {
+    sidebar.classList.add('-translate-x-full');
+    overlay.classList.add('hidden');
+}
 
-    toggleBtn.addEventListener('click', function () {
-        isHidden = !isHidden;
+function openSidebar() {
+    sidebar.classList.remove('-translate-x-full');
+    overlay.classList.remove('hidden');
+}
 
-        if (isHidden) {
-            sidebar.classList.add('-translate-x-full');
-            main.classList.remove('ml-64');
-            main.classList.add('ml-0');
-        } else {
-            sidebar.classList.remove('-translate-x-full');
-            main.classList.add('ml-64');
-            main.classList.remove('ml-0');
-        }
-    });
+toggleBtn.addEventListener('click', function() {
+    if (sidebar.classList.contains('-translate-x-full')) {
+        openSidebar();
+    } else {
+        closeSidebar();
+    }
+});
+
+// Di desktop, sidebar selalu terbuka
+window.addEventListener('resize', function() {
+    if (window.innerWidth >= 768) {
+        sidebar.classList.remove('-translate-x-full');
+        overlay.classList.add('hidden');
+    } else {
+        sidebar.classList.add('-translate-x-full');
+    }
+});
 </script>
 @stack('scripts')
 </body>
