@@ -216,59 +216,81 @@
             @endif
 
             {{-- Info Pengiriman Internasional --}}
-            @if($order->shipping_type === 'international')
-                <div class="bg-white rounded-xl border border-blue-100 p-6">
-                    <div class="flex items-center gap-2 mb-3">
-                        <span>🌍</span>
-                        <h2 class="font-semibold text-gray-800">
-                            {{ __('app.international_shipping') ?? 'Pengiriman Internasional' }}</h2>
-                    </div>
-                    <div class="text-sm text-gray-600 space-y-2">
-                        <div class="flex justify-between">
-                            <span class="text-gray-400">{{ __('app.destination_country') ?? 'Negara Tujuan' }}</span>
-                            <span class="font-medium">{{ $order->destination_country }}</span>
-                        </div>
+@if($order->shipping_type === 'international')
+<div class="bg-white rounded-xl border border-blue-100 p-6">
+    <div class="flex items-center gap-2 mb-3">
+        <span>🌍</span>
+        <h2 class="font-semibold text-gray-800">
+            {{ __('app.international_shipping') ?? 'Pengiriman Internasional' }}</h2>
+    </div>
+    <div class="text-sm text-gray-600 space-y-2">
+        <div class="flex justify-between">
+            <span class="text-gray-400">{{ __('app.destination_country') ?? 'Negara Tujuan' }}</span>
+            <span class="font-medium">{{ $order->destination_country }}</span>
+        </div>
 
-                        @if($order->status === 'waiting_shipping_cost')
-                            <div class="bg-orange-50 border border-orange-200 rounded-lg px-4 py-3 mt-2">
-                                <p class="text-sm text-orange-700 font-medium">⏳
-                                    {{ __('app.waiting_shipping_cost') ?? 'Menunggu Konfirmasi Ongkir' }}</p>
-                                <p class="text-xs text-orange-600 mt-1">
-                                    {{ __('app.waiting_shipping_desc') ?? 'Kami sedang menghitung ongkos kirim ke' }}
-                                    {{ $order->destination_country }}.</p>
-                            </div>
+        @if($order->status === 'waiting_shipping_cost')
+        <div class="bg-orange-50 border border-orange-200 rounded-lg px-4 py-3 mt-2">
+            <p class="text-sm text-orange-700 font-medium">⏳
+                {{ __('app.waiting_shipping_cost') ?? 'Menunggu Konfirmasi Ongkir' }}</p>
+            <p class="text-xs text-orange-600 mt-1">
+                {{ __('app.waiting_shipping_desc') ?? 'Kami sedang menghitung ongkos kirim ke' }}
+                {{ $order->destination_country }}.</p>
+        </div>
 
-                        @elseif($order->intl_shipping_cost)
-                            <div class="flex justify-between">
-                                <span class="text-gray-400">{{ __('app.courier') }}</span>
-                                <span class="font-medium">{{ $order->intl_courier }}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-400">{{ __('app.shipping_cost') }}</span>
-                                <div class="text-right">
-                                    <span class="font-medium">
-                                        {{ \App\Helpers\CurrencyHelper::convertAndFormat($order->intl_shipping_cost, $currency) }}
-                                    </span>
-                                    @if($currency !== 'IDR')
-                                        <p class="text-xs text-gray-400">Rp {{ number_format($order->intl_shipping_cost, 0, ',', '.') }}
-                                        </p>
-                                    @endif
-                                </div>
-                            </div>
+        @elseif($order->intl_shipping_cost)
+        <div class="flex justify-between">
+            <span class="text-gray-400">{{ __('app.courier') }}</span>
+            <span class="font-medium">{{ $order->intl_courier }}</span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-gray-400">{{ __('app.shipping_cost') }}</span>
+            <div class="text-right">
+                <span class="font-medium">
+                    {{ \App\Helpers\CurrencyHelper::convertAndFormat($order->intl_shipping_cost, $currency) }}
+                </span>
+                @if($currency !== 'IDR')
+                <p class="text-xs text-gray-400">Rp {{ number_format($order->intl_shipping_cost, 0, ',', '.') }}</p>
+                @endif
+            </div>
+        </div>
 
-                            @if($order->intl_tracking_number)
-                                <div class="flex justify-between items-center pt-2 border-t border-gray-100">
-                                    <span class="text-gray-400">{{ __('app.tracking_number') ?? 'Nomor Resi' }}</span>
-                                    <span class="font-bold text-blue-900">{{ $order->intl_tracking_number }}</span>
-                                </div>
-                            @else
-                                <p class="text-xs text-gray-400 mt-2">
-                                    {{ __('app.tracking_after_shipped') ?? 'Nomor resi akan tersedia setelah paket dikirim.' }}</p>
-                            @endif
-                        @endif
-                    </div>
-                </div>
-            @endif
+        @if($order->intl_tracking_number)
+<div class="flex justify-between items-center pt-2 border-t border-gray-100">
+    <span class="text-gray-400">{{ __('app.tracking_number') ?? 'Nomor Resi' }}</span>
+    <span class="font-bold text-blue-900">{{ $order->intl_tracking_number }}</span>
+</div>
+@else
+<p class="text-xs text-gray-400 mt-2">
+    {{ __('app.tracking_after_shipped') ?? 'Nomor resi akan tersedia setelah paket dikirim.' }}</p>
+@endif {{-- end if intl_tracking_number --}}
+
+{{-- Tracking Pos Indonesia — muncul setelah paid --}}
+@if(in_array($order->status, ['paid', 'processing', 'shipped', 'done']))
+<div class="mt-4 pt-3 border-t border-gray-100">
+    <p class="text-xs font-medium text-gray-700 mb-2">🇮🇩 Lacak via Pos Indonesia</p>
+    <div class="flex gap-2">
+        <input type="text" id="posTrackingInput"
+               value="{{ $order->intl_tracking_number }}"
+               placeholder="Masukkan nomor resi Pos Indonesia..."
+               class="input-field flex-1 text-sm">
+        <button onclick="trackPosIndonesia()"
+                class="btn-primary flex-shrink-0 text-sm px-4">
+            Lacak
+        </button>
+    </div>
+    @if($order->intl_tracking_number)
+    <p class="text-xs text-gray-400 mt-1">Nomor resi sudah terisi otomatis. Klik Lacak untuk membuka halaman tracking Pos Indonesia.</p>
+    @else
+    <p class="text-xs text-gray-400 mt-1">Contoh format resi: EE123456789ID</p>
+    @endif
+</div>
+@endif {{-- end if paid --}}
+
+        @endif {{-- end if waiting_shipping_cost / intl_shipping_cost --}}
+    </div>
+</div>
+@endif {{-- end if international --}}
 
             {{-- Tracking Real-time --}}
             @if($order->tracking_number && $order->biteship_tracking_id)
@@ -637,4 +659,15 @@ $(document).ready(function () {
                 });
             </script>
         @endif
-    @endpush
+<script>
+function trackPosIndonesia() {
+    const resi = document.getElementById('posTrackingInput').value.trim();
+    if (!resi) {
+        alert('Masukkan nomor resi terlebih dahulu.');
+        return;
+    }
+    window.open('https://www.posindonesia.co.id/id/tracking?awb=' + encodeURIComponent(resi), '_blank');
+}
+</script>
+
+@endpush

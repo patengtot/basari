@@ -167,6 +167,26 @@
             <button type="submit" class="btn-primary flex-shrink-0">Simpan Resi</button>
         </form>
     </div>
+
+    {{-- Tracking Pos Indonesia --}}
+    <div class="border-t border-gray-100 pt-4 mt-4">
+        <h3 class="text-sm font-medium text-gray-700 mb-3">🇮🇩 Lacak via Pos Indonesia</h3>
+        <div class="flex gap-2">
+            <input type="text" id="posTrackingInputAdmin"
+                   value="{{ $order->intl_tracking_number }}"
+                   placeholder="Masukkan nomor resi Pos Indonesia..."
+                   class="input-field flex-1 text-sm">
+            <button onclick="trackPosIndonesiaAdmin()"
+                    class="btn-primary flex-shrink-0 text-sm px-4">
+                Lacak
+            </button>
+        </div>
+        @if($order->intl_tracking_number)
+        <p class="text-xs text-gray-400 mt-1">Nomor resi sudah terisi otomatis. Klik Lacak untuk membuka halaman tracking Pos Indonesia.</p>
+        @else
+        <p class="text-xs text-gray-400 mt-1">Contoh format resi: EE123456789ID</p>
+        @endif
+    </div>
     @endif
     @endif
 </div>
@@ -248,9 +268,12 @@
            target="_blank" class="text-blue-700 hover:underline">Lacak di Biteship →</a>
     </div>
 </div>
+@endif {{-- end if biteship_tracking_id --}}
 
 @push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
+
+{{-- Tracking Biteship --}}
 @if($order->biteship_tracking_id)
 <script>
 $(document).ready(function() {
@@ -301,16 +324,12 @@ $(document).ready(function() {
         type: 'GET',
         success: function(data) {
             $('#trackingLoading').addClass('hidden');
-
             if (data.success !== false && data.courier) {
                 $('#trackingContent').removeClass('hidden');
-
                 const status = data.courier.status ?? data.status ?? '';
                 const statusLabel = statusLabels[status] || status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                 $('#trackingStatus').text(statusLabel);
-
                 const history = data.courier.history ?? [];
-
                 if (history.length > 0) {
                     const historyHtml = [...history].reverse().map(function(h, index) {
                         const isFirst = index === 0;
@@ -321,7 +340,6 @@ $(document).ready(function() {
                         }) : '';
                         const label = statusLabels[h.status] || h.status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                         const note  = h.note || statusNotes[h.status] || '';
-
                         return `
                             <div class="flex gap-4 relative">
                                 <div class="flex flex-col items-center flex-shrink-0">
@@ -345,7 +363,6 @@ $(document).ready(function() {
                     const color = statusColors[status] || { bg: '#f9fafb', dot: '#6b7280', text: '#374151' };
                     const label = statusLabels[status] || status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                     const note  = statusNotes[status] || 'Belum ada update pengiriman.';
-
                     $('#trackingHistory').html(`
                         <div class="flex gap-4">
                             <div class="flex-shrink-0 w-4 h-4 rounded-full mt-1" style="background:${color.dot};"></div>
@@ -368,32 +385,26 @@ $(document).ready(function() {
     });
 });
 </script>
-@endif
+@endif {{-- end if biteship_tracking_id --}}
 
 {{-- Preview konversi ongkir internasional --}}
 @if(($order->preferred_currency ?? 'IDR') !== 'IDR' && !$order->intl_shipping_cost)
 <script>
 const preferredCurrency = '{{ $order->preferred_currency }}';
-
 fetch('https://open.er-api.com/v6/latest/IDR')
     .then(r => r.json())
     .then(data => {
-        const rate   = data.rates[preferredCurrency] || 1;
-        const symbol = preferredCurrency === 'USD' ? '$' : 'RM';
-        const input  = document.getElementById('intlCostInput');
+        const rate    = data.rates[preferredCurrency] || 1;
+        const symbol  = preferredCurrency === 'USD' ? '$' : 'RM';
+        const input   = document.getElementById('intlCostInput');
         const preview = document.getElementById('convertedPreview');
         if (!input || !preview) return;
-
         input.addEventListener('input', function() {
             const idr = parseFloat(this.value) || 0;
-            if (idr === 0) {
-                preview.textContent = 'Masukkan nominal dalam Rupiah';
-                return;
-            }
+            if (idr === 0) { preview.textContent = 'Masukkan nominal dalam Rupiah'; return; }
             const converted = idr * rate;
             preview.textContent = '≈ ' + symbol + ' ' + converted.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
+                minimumFractionDigits: 2, maximumFractionDigits: 2
             }) + ' ' + preferredCurrency + ' (estimasi kurs saat ini)';
         });
     })
@@ -403,8 +414,21 @@ fetch('https://open.er-api.com/v6/latest/IDR')
     });
 </script>
 @endif
+
+{{-- Tracking Pos Indonesia --}}
+<script>
+function trackPosIndonesiaAdmin() {
+    const resi = document.getElementById('posTrackingInputAdmin').value.trim();
+    if (!resi) {
+        alert('Masukkan nomor resi terlebih dahulu.');
+        return;
+    }
+    window.open('https://www.posindonesia.co.id/id/tracking?awb=' + encodeURIComponent(resi), '_blank');
+}
+</script>
+
 @endpush
-@endif
+
 {{-- Chat dengan Customer --}}
 @php
     $orderConversation = \App\Models\Conversation::where('user_id', $order->user_id)
@@ -441,7 +465,7 @@ fetch('https://open.er-api.com/v6/latest/IDR')
     </div>
 </div>
 
-    <a href="{{ route('admin.orders.index') }}" class="text-sm text-gray-400 hover:text-gray-600">← Kembali ke daftar pesanan</a>
+<a href="{{ route('admin.orders.index') }}" class="text-sm text-gray-400 hover:text-gray-600">← Kembali ke daftar pesanan</a>
 
 </div>
 
